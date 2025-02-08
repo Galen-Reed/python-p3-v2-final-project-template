@@ -2,6 +2,8 @@ from models.__init__ import CURSOR, CONN
 
 class Veterinarian:
 
+    all = {}
+
     def __init__(self, id, name, specialty):
         self.id = id
         self.name = name
@@ -68,5 +70,42 @@ class Veterinarian:
 
         CURSOR.execute(sql, (self.name, self.specialty))
         CONN.commit()
+
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
     
+    @classmethod
+    def create(cls, name, specialty):
+        """ Initialize a new Veterinarian instance and save the object to the database """
+        veterinarian = cls(name, specialty)
+        veterinarian.save()
+        return veterinarian
+    
+    def update(self):
+        """ Update the table row corresponding to the current Veterinarian instance """
+        sql = """ 
+            UPDATE veterinarians
+            SET name = ?, specialty = ?
+            WHERE id = ? 
+        """
+
+        CURSOR.execute(sql, (self.name, self.specialty, self.id))
+        CONN.commit()
+
+    def delete(self):
+        """ Delete the table row corresponding to the current Veterinarian instance,
+        delete the dictionary entry, and reassign id attribure"""
+
+        sql = """
+            DELETE FROM veterinarians
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.id))
+        CONN.commit()
+
+        del type(self).all[self.id]
+
+        self.id = None
+
     
