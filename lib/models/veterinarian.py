@@ -24,7 +24,7 @@ class Veterinarian:
         return self._specialty
 
     @specialty.setter
-    def location(self, specialty):
+    def specialty(self, specialty):
         if isinstance(specialty, str) and len(specialty):
             self._specialty = specialty
         else:
