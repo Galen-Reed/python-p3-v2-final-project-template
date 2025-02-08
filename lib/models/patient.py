@@ -3,9 +3,9 @@ class Patient:
 
     def __init__(self, id, name, breed, age, ):
         self.id = id
-        self._name = name
-        self._breed = breed
-        self._age = age
+        self.name = name
+        self.breed = breed
+        self.age = age
 
     @property
     def name(self):
@@ -45,5 +45,4 @@ class Patient:
             raise ValueError(
                 "Age must be an integer"
             )
-    
     
