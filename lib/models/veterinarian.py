@@ -108,4 +108,63 @@ class Veterinarian:
 
         self.id = None
 
+    @classmethod
+    def instance_from_db(cls, row):
+        """ Return a Veterinarian object having the attribute values from table row """
+
+        veterinarian = cls.all.get(row[0])
+        if veterinarian:
+            veterinarian.name = row[1]
+            veterinarian.specialty = row[2]
+        else:
+            veterinarian = cls(row[1], row[2])
+            veterinarian.id = row[0]
+            cls.all[veterinarian.id] = veterinarian
+        return veterinarian
     
+    @classmethod
+    def get_all(cls):
+        """ Return a list containing a Veterinarian object per row in table """
+        sql = """
+            SELECT *
+            FROM veterinarians
+        """
+        rows = CURSOR.execute(sql).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod
+    def find_by_id(cls, id):
+        """ Return a Veterinarian object by their id """
+        sql = """
+            SELECT *
+            FROM veterinarians
+            WHERE id = ?
+        """
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+
+    @classmethod
+    def find_by_name(cls, name):
+        """ Return Veterinarian object by their name """
+        sql = """
+            SELECT *
+            FROM veterinarians
+            WHERE name = ?
+        """
+        row = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+
+    def patients(self):
+        """ Return list of patients that a veterinarian has """
+        from models.patient import Patient
+        sql = """
+            SELECT * FROM patients
+            WHERE veterinarian_id = ?
+        """
+        CURSOR.execute(sql, (self.id,),)
+        
+        rows = CURSOR.fetchall()
+        return [ 
+            Patient.instance_from_db(row) for row in rows
+        ]
