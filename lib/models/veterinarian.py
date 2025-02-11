@@ -154,6 +154,17 @@ class Veterinarian:
         """
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def find_by_specialty(cls, specialty):
+        """ Return  Veterinarian object by their specialty """
+        sql = """
+            SELECT *
+            FROM veterinarians
+            WHERE specialty = ?
+        """
+        row = CURSOR.execute(sql, (specialty,)).fetchone()
+        return cls.instance_from_db(row) if row else None
 
     def patients(self):
         """ Return list of patients that a veterinarian has """
