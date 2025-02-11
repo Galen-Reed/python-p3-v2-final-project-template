@@ -158,7 +158,7 @@ class Patient:
         return [cls.instance_from_db(row) for row in rows]
     
     @classmethod
-    def find_by_id(cls, id):
+    def find_by_name(cls, name):
         """ Return Patient object corresponding to first table matching specified name """
         sql = """
             SELECT *
@@ -167,4 +167,15 @@ class Patient:
         """
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def find_by_breed(cls, breed):
+        """ Return Patient object corresponding to the first table matching specified breed """
+        sql = """
+            SELECT *
+            FROM patients
+            WHERE breed is ?
+        """
+        rows = CURSOR.execute(sql, (breed,)).fetchall()
+        return [cls.instance_from_db(row) for row in rows] if rows else []
     
