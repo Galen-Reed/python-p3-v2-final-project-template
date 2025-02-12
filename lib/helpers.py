@@ -46,3 +46,67 @@ def update_veterinarian():
             print("Error updating department: ", exc)
     else:
         print(f'Veterinarian {name} not found')
+
+def delete_veterinarian():
+    name = input("Enter the veterinarian's name: ")
+    if veterinarian := Veterinarian.find_by_name(name):
+        veterinarian.delete()
+        print(f'Veterinarian {name} deleted')
+    else:
+        print('Veteriniarian {name} not found')
+
+def list_patients():
+    patients = Patient.get_all()
+    for patient in patients:
+        print(patient)
+
+def find_patients_by_name():
+    name = input("Enter the patient's name: ")
+    patient = Patient.find_by_name(name)
+    print(patient) if patient else print(f'Patient {name} not found')
+
+def find_patient_by_breed():
+    breed = input("Enter the patient's breed: ")
+    patient = Patient.find_by_breed(breed)
+    print(patient) if patient else print(f'Patient {breed} not found')
+
+def create_patient():
+    name = input("Enter the patient's name: ")
+    breed = input("Enter the patient's breed: ")
+    age = input("Enter the patient's age: ")
+    try:
+        patient = Patient.create(name, breed, int(age))
+        print(f'Success: {patient} created')
+    except Exception as exc:
+        print("Error creating patient: ", exc)
+
+def update_patient():
+    name = input("Enter patient's name: ")
+    if patient := Patient.find_by_name(name):
+        try:
+            new_name = input("Enter patient's new name: ")
+            breed = input("Enter patient's new breed: ")
+            age = input("Enter patient's new age: ")
+
+            patient.update()
+            print(f'Success! {patient} has been updated')
+        except Exception as exc:
+            print(f'Error updating patient: ', exc)
+    else:
+        print(f'Patient {name} not found')
+
+def delete_patient():
+    name = input("Enter patient's name: ")
+    if patient := Patient.find_by_name(name):
+        patient.delete()
+        print(f'Patient {name} has been deleted')
+    else:
+        print(f'Patient {name} not found')
+
+def list_veterinarian_patients():
+    name = input("Enter veterinarian's name: ")
+    if veterinarian := Veterinarian.find_by_name(name):
+        for patient in veterinarian.patients():
+            print(patient)
+    else:
+        print(f'{veterinarian} not found')
