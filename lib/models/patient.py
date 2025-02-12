@@ -5,7 +5,7 @@ class Patient:
 
     all = {}
 
-    def __init__(self, id, name, breed, age):
+    def __init__(self, name, breed, age, id=None):
         self.id = id
         self.name = name
         self.breed = breed
@@ -43,7 +43,7 @@ class Patient:
     
     @age.setter
     def age(self, age):
-        if isinstance(age, int) and len(age):
+        if isinstance(age, int) and int(age):
             self._age = age
         else:
             raise ValueError(
@@ -59,6 +59,7 @@ class Patient:
             name TEXT, 
             breed TEXT, 
             age INTEGER
+            )
         """
         CURSOR.execute(sql)
         CONN.commit()
@@ -103,7 +104,7 @@ class Patient:
             DELETE FROM patients
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.id))
+        CURSOR.execute(sql, (self.id,))
         CONN.commit()
 
         del type(self).all[self.id]
@@ -126,8 +127,7 @@ class Patient:
             patient.breed = row[2]
             patient.age = row[3]
         else:
-            patient = cls(row[1], row[2], row[3], row[4])
-            patient.id = row[0]
+            patient = cls(row[1], row[2], row[3], id=row[0])
             cls.all[patient.id] = patient
         return patient
     
