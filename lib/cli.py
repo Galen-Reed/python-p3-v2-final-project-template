@@ -1,4 +1,6 @@
 # lib/cli.py
+from models.patient import Patient
+from models.veterinarian import Veterinarian
 
 from helpers import (
     exit_program,
@@ -16,6 +18,10 @@ from helpers import (
     delete_patient,
     list_veterinarian_patients
 )
+
+Veterinarian.create_table()
+
+Patient.create_table()
 
 
 def main():
