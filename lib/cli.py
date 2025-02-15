@@ -61,7 +61,7 @@ def main():
 
 
 def menu():
-    print("Please select an option:")
+    print("\nPlease select an option:\n")
     print("0. Exit the program")
     print("1. List all veterinarians")
     print("2. Find a veterinarian by name")

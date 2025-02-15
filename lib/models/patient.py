@@ -5,11 +5,15 @@ class Patient:
 
     all = {}
 
-    def __init__(self, name, breed, age, id=None):
-        self.id = id
+    def __init__(self, name, breed, age, veterinarian_id):
+        self.id = None
         self.name = name
         self.breed = breed
         self.age = age
+        self.veterinarian_id = veterinarian_id
+
+    def __repr__(self):
+        return f"Patient: {self.name}, {self.breed}, {self.age}yrs"
 
     @property
     def name(self):
@@ -49,7 +53,7 @@ class Patient:
             raise ValueError(
                 "Age must be an integer"
             )
-    
+
     @classmethod
     def create_table(cls):
         """ Create a new table to persist the attributes of Patient instances """
@@ -58,7 +62,9 @@ class Patient:
             id INTEGER PRIMARY KEY, 
             name TEXT, 
             breed TEXT, 
-            age INTEGER
+            age INTEGER,
+            veterinarian_id INTEGER,
+            FOREIGN KEY (veterinarian_id) REFERENCES veterinarians(id)
             )
         """
         CURSOR.execute(sql)
@@ -78,11 +84,11 @@ class Patient:
         Update object id attribute using the primary key value of new row.
         Save the object in local dictionary using table row's PK as dictionary key"""
         sql = """
-            INSERT INTO patients (name, breed, age)
-            VALUES (?, ?, ?)
+            INSERT INTO patients (name, breed, age, veterinarian_id)
+            VALUES (?, ?, ?, ?)
         """
         print(self)
-        CURSOR.execute(sql, (self.name, self.breed, self.age))
+        CURSOR.execute(sql, (self.name, self.breed, self.age, self.veterinarian_id))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
@@ -92,10 +98,10 @@ class Patient:
         """ Update table row corresponding to current Patient instance."""
         sql = """
             UPDATE patients
-            SET name = ?, breed = ?, age = ?
+            SET name = ?, breed = ?, age = ?, veterinarian_id =?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.name, self.breed, self.age, self.id))
+        CURSOR.execute(sql, (self.name, self.breed, self.age, self.veterinarian_id, self.id))
         CONN.commit()
 
     def delete(self):
@@ -112,9 +118,14 @@ class Patient:
         self.id = None
 
     @classmethod
-    def create(cls, name, breed, age):
+    def create(cls, name, breed, age, veterinarian_name):
         """ Initialize new Paitent instance and save to database """
-        patient = cls(name, breed, age)
+        veterinarian_id = Veterinarian.get_id_by_name(veterinarian_name)
+
+        if veterinarian_id is None:
+            raise ValueError(f"Veterinarian: {veterinarian_name} not found. Please add them first")
+
+        patient = cls(name, breed, age, veterinarian_id)
         patient.save()
         return patient
     
@@ -126,8 +137,10 @@ class Patient:
             patient.name = row[1]
             patient.breed = row[2]
             patient.age = row[3]
+            patient.veterinarian_id = row[4]
         else:
-            patient = cls(row[1], row[2], row[3], id=row[0])
+            patient = cls(row[1], row[2], row[3], row[4])
+            patient.id = row[0]
             cls.all[patient.id] = patient
         return patient
     

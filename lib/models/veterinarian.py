@@ -4,10 +4,13 @@ class Veterinarian:
 
     all = {}
 
-    def __init__(self, id, name, specialty):
+    def __init__(self, name, specialty, id=0):
         self.id = id
         self.name = name
         self.specialty = specialty
+
+    def __repr__(self):
+        return f"Veterinarian: {self.name}, specialty: {self.specialty}"
 
     @property
     def name(self):
@@ -36,6 +39,16 @@ class Veterinarian:
             )
         
     @classmethod
+    def get_id_by_name(cls, vet_name):
+        """ Find veterinarian by name and return their ID """
+        veterinarian = cls.find_by_name(vet_name)
+        if veterinarian:
+            return veterinarian.id
+        else:
+            return None
+        
+        
+    @classmethod
     def create_table(cls):
         """ Create a new table to persist the atributes of Veterinarian instances """
         sql = """
@@ -45,7 +58,7 @@ class Veterinarian:
             specialty TEXT)
         """
 
-        CURSOR.exectute(sql)
+        CURSOR.execute(sql)
         CONN.commit()
 
     @classmethod
@@ -58,13 +71,12 @@ class Veterinarian:
         CURSOR.execute(sql)
         CONN.commit()
 
-    @classmethod
     def save(self):
         """ Insert a new row with the name and specialty values of the current Veterinarian instance. 
         Update object id attribute using the primary key value of new row. 
         Save the object in local dictionary using table row's PK as dictionary key """
         sql = """
-            INSERT INTO veterinarian (name, specialty)
+            INSERT INTO veterinarians (name, specialty)
             VALUES (?, ?)
         """
 
@@ -101,7 +113,7 @@ class Veterinarian:
             WHERE id = ?
         """
 
-        CURSOR.execute(sql, (self.id))
+        CURSOR.execute(sql, (self.id,))
         CONN.commit()
 
         del type(self).all[self.id]
@@ -117,8 +129,7 @@ class Veterinarian:
             veterinarian.name = row[1]
             veterinarian.specialty = row[2]
         else:
-            veterinarian = cls(row[1], row[2])
-            veterinarian.id = row[0]
+            veterinarian = cls(row[1], row[2], row[0])
             cls.all[veterinarian.id] = veterinarian
         return veterinarian
     
@@ -163,8 +174,8 @@ class Veterinarian:
             FROM veterinarians
             WHERE specialty = ?
         """
-        row = CURSOR.execute(sql, (specialty,)).fetchone()
-        return cls.instance_from_db(row) if row else None
+        rows = CURSOR.execute(sql, (specialty,)).fetchall()
+        return [cls.instance_from_db(row) for row in rows] if rows else []
 
     def patients(self):
         """ Return list of patients that a veterinarian has """
